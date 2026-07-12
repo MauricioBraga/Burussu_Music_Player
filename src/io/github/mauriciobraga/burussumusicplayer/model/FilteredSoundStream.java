@@ -1,4 +1,4 @@
-package io.github.mauriciobraga.multitrack.model;
+package io.github.mauriciobraga.burussumusicplayer.model;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

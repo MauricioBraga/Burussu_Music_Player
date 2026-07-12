@@ -1,4 +1,4 @@
-package io.github.mauriciobraga.multitrack.view;
+package io.github.mauriciobraga.burussumusicplayer.view;
 
 import javax.swing.*;
 import java.awt.*;

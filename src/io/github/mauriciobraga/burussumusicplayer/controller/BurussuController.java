@@ -1,4 +1,4 @@
-package io.github.mauriciobraga.multitrack.controller;
+package io.github.mauriciobraga.burussumusicplayer.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,9 +7,9 @@ import java.io.File;
 import javax.sound.sampled.AudioFormat;
 import javax.swing.AbstractButton;
 
-import io.github.mauriciobraga.multitrack.model.Sound;
-import io.github.mauriciobraga.multitrack.model.SoundManager;
-import io.github.mauriciobraga.multitrack.view.BurussuView;
+import io.github.mauriciobraga.burussumusicplayer.model.Sound;
+import io.github.mauriciobraga.burussumusicplayer.model.SoundManager;
+import io.github.mauriciobraga.burussumusicplayer.view.BurussuView;
 
 public class BurussuController implements ActionListener {
 

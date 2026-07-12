@@ -1,4 +1,4 @@
-package io.github.mauriciobraga.multitrack.view;
+package io.github.mauriciobraga.burussumusicplayer.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,7 +26,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import io.github.mauriciobraga.multitrack.model.Sound;
+import io.github.mauriciobraga.burussumusicplayer.model.Sound;
 
 public class BurussuView extends JFrame {
 

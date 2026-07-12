@@ -1,4 +1,4 @@
-package io.github.mauriciobraga.multitrack.model;
+package io.github.mauriciobraga.burussumusicplayer.model;
 
 public class Sound {
 

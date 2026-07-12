@@ -1,5 +1,5 @@
 
-package io.github.mauriciobraga.multitrack.model;
+package io.github.mauriciobraga.burussumusicplayer.model;
 
 abstract class SoundFilter {
 

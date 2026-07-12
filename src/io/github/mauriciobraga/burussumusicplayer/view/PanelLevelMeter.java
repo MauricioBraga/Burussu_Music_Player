@@ -1,15 +1,16 @@
 // modificado a partir do código
-package io.github.mauriciobraga.multitrack.view;
+package io.github.mauriciobraga.burussumusicplayer.view;
 
 import javax.swing.Timer;
+
+import io.github.mauriciobraga.burussumusicplayer.model.Sound;
+
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import io.github.mauriciobraga.multitrack.model.Sound;
 
 class PanelLevelMeter extends JPanel {
     Sound sound;
