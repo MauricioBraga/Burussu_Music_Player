@@ -40,7 +40,7 @@ jobs:
 
     - name: Criar manifest com Main-Class
       run: |
-        echo "Main-Class: Burussu_App" > manifest.txt
+        echo "Main-Class: io.github.mauriciobraga.burussumusicplayer.app.Burussu_App" > manifest.txt
 
     - name: Gerar JAR executável (fat JAR)
       run: |
