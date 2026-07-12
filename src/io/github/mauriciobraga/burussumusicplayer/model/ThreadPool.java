@@ -20,7 +20,7 @@ class ThreadPool extends ThreadGroup {
      */
     public ThreadPool(int numThreads) {
         super("ThreadPool-" + (threadPoolID++));
-        setDaemon(true);
+        // setDaemon(true);
 
         isAlive = true;
 
