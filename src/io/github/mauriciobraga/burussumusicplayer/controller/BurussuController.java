@@ -31,7 +31,7 @@ public class BurussuController implements ActionListener {
         soundManager = new SoundManager(PLAYBACK_FORMAT);
     }
 
-    // all events generated in the view are processed here.
+    // all button click events generated in the view are processed here.
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
@@ -89,6 +89,8 @@ public class BurussuController implements ActionListener {
         }
     }
 
+    // load audio files selected by the user and 
+    // create Sound objects for each file.
     private void openFiles() {
         File[] files = view.selectAudioFiles();
         if (files == null || files.length == 0) {

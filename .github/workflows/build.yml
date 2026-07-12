@@ -1,0 +1,65 @@
+name: Burussu Music Player JAR
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - "v*.*.*"   # publica release quando você fizer push de uma tag tipo V1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+
+    - name: Configurar JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '25'
+
+    - name: Criar diretórios de saída
+      run: mkdir -p out
+
+    - name: Compilar arquivos .java (com dependências em libs/)
+      run: |
+        if [ -d lib ]; then
+          javac -cp "lib/*" -d out $(find src -name "*.java")
+        else
+          javac -d out $(find src -name "*.java")
+        fi
+    
+    - name: Copiar recursos (imagens PNG)
+      run: |
+        cp -r bin/*.png out/
+
+    - name: Criar manifest com Main-Class
+      run: |
+        echo "Main-Class: Burussu_App" > manifest.txt
+
+    - name: Gerar JAR executável (fat JAR)
+      run: |
+        if [ -d lib ]; then
+          jar cfm Burussu_music_player.jar manifest.txt -C out . -C lib .
+        else
+          jar cfm Burussu_music_player.jar manifest.txt -C out .
+        fi
+
+    - name: Upload JAR como artefato
+      uses: actions/upload-artifact@v4
+      with:
+        name: Burussu Music Player
+        path: Burussu_music_player.jar
+
+    - name: Publicar Release no GitHub
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: Burussu_music_player.jar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
