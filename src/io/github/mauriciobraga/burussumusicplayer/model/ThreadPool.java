@@ -20,6 +20,7 @@ class ThreadPool extends ThreadGroup {
      */
     public ThreadPool(int numThreads) {
         super("ThreadPool-" + (threadPoolID++));
+        // removed because this method is deprecated and marked for removal in a future release of Java
         // setDaemon(true);
 
         isAlive = true;
