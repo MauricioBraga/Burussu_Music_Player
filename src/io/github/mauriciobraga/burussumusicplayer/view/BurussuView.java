@@ -44,6 +44,7 @@ public class BurussuView extends JFrame {
     private JColorLabel lblNome_Musica = new JColorLabel("", Color.YELLOW);
     private ActionListener actionListener;
 
+    // configure the main window and its components.
     public BurussuView(String title) {
         super(title);
         setUndecorated(true);
@@ -145,6 +146,7 @@ public class BurussuView extends JFrame {
         this.actionListener = actionListener;
     }
 
+    // create UI buttons and associate the action listener to them.
     public AbstractButton createButton(String name, boolean canToggle) {
         AbstractButton button = canToggle ? new JToggleRoundedButton(name) : new JRoundedButton(name);
         button.addActionListener(e -> {
@@ -156,7 +158,7 @@ public class BurussuView extends JFrame {
     }
 
     public File[] selectAudioFiles() {
-        personalizaCoresJFileChooser();
+        jFileChooserColorSetup();
 
         JFileChooser chooser = new JFileChooser();
         chooser.setOpaque(false);
@@ -176,7 +178,7 @@ public class BurussuView extends JFrame {
         }
 
         if (files.length > 0) {
-            String nome = obterNomeDaPastaMae(files[0]);
+            String nome = getParentFolder(files[0]);
             setMusicName(nome);
         }
 
@@ -227,7 +229,7 @@ public class BurussuView extends JFrame {
         return checkboxes;
     }
 
-    public String obterNomeDaPastaMae(File arquivo) {
+    public String getParentFolder(File arquivo) {
         File pastaPai = arquivo.getParentFile();
         if (pastaPai != null) {
             return pastaPai.getName();
@@ -235,7 +237,7 @@ public class BurussuView extends JFrame {
         return "";
     }
 
-    public void personalizaCoresJFileChooser() {
+    public void jFileChooserColorSetup() {
         Color corFundo = new Color(99, 6, 0);
         Color corFrente = Color.WHITE;
 

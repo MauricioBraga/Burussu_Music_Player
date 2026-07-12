@@ -30,7 +30,6 @@ public class JColorLabel extends JLabel {
 
         g2.setPaint(gradient);
         FontMetrics fm = g2.getFontMetrics();
-        // int x = (getWidth() - fm.stringWidth(getText())) / 2;
         
         int x = padding; // Alinhado à esquerda com margem
         int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;

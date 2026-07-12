@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
 public class JRoundedButton extends JButton {
 
     private Color normalColor = Color.WHITE;
-    // private Color hoverColor = new Color(255, 80, 80); // cor ao passar o mouse
+    // cor ao passar o mouse
     private Color hoverColor = Color.YELLOW;
     private boolean isHovering = false;
 

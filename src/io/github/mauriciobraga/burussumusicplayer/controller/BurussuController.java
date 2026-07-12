@@ -22,6 +22,7 @@ public class BurussuController implements ActionListener {
 
     public BurussuController(BurussuView view) {
         this.view = view;
+        // add this controller as listener of the UI events.
         this.view.setActionListener(this);
         initSoundManager();
     }
@@ -30,6 +31,7 @@ public class BurussuController implements ActionListener {
         soundManager = new SoundManager(PLAYBACK_FORMAT);
     }
 
+    // all events generated in the view are processed here.
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
