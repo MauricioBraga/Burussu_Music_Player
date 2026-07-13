@@ -1,3 +1,5 @@
+// original code written by David Brackeen, 2002, modified by Mauricio Braga.
+
 package io.github.mauriciobraga.burussumusicplayer.model;
 
 public class Sound {

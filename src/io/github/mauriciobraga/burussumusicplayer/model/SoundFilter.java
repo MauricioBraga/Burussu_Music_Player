@@ -1,3 +1,4 @@
+// original code by David Brackeen, 2002.
 
 package io.github.mauriciobraga.burussumusicplayer.model;
 

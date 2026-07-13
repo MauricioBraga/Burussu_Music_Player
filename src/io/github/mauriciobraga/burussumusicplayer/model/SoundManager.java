@@ -1,3 +1,5 @@
+// original code written by David Brackeen, 2002, modified by Mauricio Braga.
+
 package io.github.mauriciobraga.burussumusicplayer.model;
 
 import javax.sound.sampled.AudioFormat;
@@ -357,7 +359,7 @@ public class SoundManager extends ThreadPool {
                             ByteArrayInputStreamIdentificado x = (ByteArrayInputStreamIdentificado) source;
                             boolean play = x.isPlay();
                             if (play) {
-                                // calcula o n vel do som e seta o valor para gerar o gr fico na tela
+                                // calcula o nível do som e seta o valor para gerar o gráfico na tela
                                 float temp = (float) new Random().nextFloat();
                                 // x.setLevel( temp);
                                 calculateLevel(buffer, 0, 0, x);
