@@ -3,7 +3,7 @@
 
 ![Burussu client](Burussu.png)
 
-Burussu Music Player (BMP) is a simple educational example of a Java Swing application that allows to play music files through the use of Threads. The app  allows the user to toggle the channels that make up the music, to experience the music in different ways (Acapella, Karaoke, or just some of the instruments of the music).
+Burussu Music Player (BMP) is a simple educational example of a multithread Java Swing application that allows the user to play multitrack music files. The app allows the user to toggle the channels that make up the music, to experience the music in different ways (Acapella, Karaoke, or just some of the instruments of the music).
 
 Sound data format can be configured by the user in the code. 
 
