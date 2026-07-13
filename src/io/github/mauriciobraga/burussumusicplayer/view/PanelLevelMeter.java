@@ -1,4 +1,3 @@
-// modificado a partir do código
 package io.github.mauriciobraga.burussumusicplayer.view;
 
 import javax.swing.Timer;
@@ -38,18 +37,11 @@ class PanelLevelMeter extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         Dimension d = getSize();
-        // clear component
-        // g.setColor(new Color(104,5,0));
-        // g.clearRect(0, 0, d.width, d.height);
-        // g.fillRect(0, 0, d.width, d.height);
+
         repaint();
-        // paint
+
         g.setColor(Color.green);
         int meterWidth = (int) (level * (float) d.width);
-        /*
-         * System.out.println ("level = " + level +
-         * ", meterWidth = " + meterWidth);
-         */
         g.fillRect(0, 0, meterWidth, d.height);
     }
 
