@@ -167,7 +167,7 @@ public class BurussuView extends JFrame {
             FileNameExtensionFilter filter = new FileNameExtensionFilter("WAVE FILES", "wav", "wave");
             chooser.setFileFilter(filter);
         } catch (Exception ex) {
-            // ignore
+            throw new RuntimeException("Erro ao selecionar arquivos de áudio: " + ex.getMessage(), ex);
         }
         chooser.setMultiSelectionEnabled(true);
         chooser.showOpenDialog(this);
