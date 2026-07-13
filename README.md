@@ -1,5 +1,5 @@
 # Burussu Music Player
-## Description
+## 🛠️ Project Description
 
 ![Burussu client](Burussu.png)
 
