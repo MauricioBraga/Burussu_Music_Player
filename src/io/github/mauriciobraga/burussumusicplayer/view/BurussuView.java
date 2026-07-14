@@ -6,12 +6,12 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.function.Consumer;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -30,19 +30,23 @@ import io.github.mauriciobraga.burussumusicplayer.model.Sound;
 
 public class BurussuView extends JFrame {
 
-    public static final String OPEN = "Selecionar música";
-    public static final String PAUSE = "Pausa";
-    public static final String KARAOKE = "Karaoke";
-    public static final String ACAPELLA = "Acappella";
-    public static final String PLAY_SOUND = "Tocar música";
-    public static final String EXIT = "Encerrar";
+    private static final String OPEN = "Selecionar música";
+    private static final String PAUSE = "Pausa";
+    private static final String KARAOKE = "Karaoke";
+    private static final String ACAPELLA = "Acappella";
+    private static final String PLAY_SOUND = "Tocar música";
+    private static final String EXIT = "Encerrar";
 
     private AbstractButton playButton;
     private JPanel painelCentralplayer;
     private JPanel painelCentralJFrame;
-    private JCheckBox[] checkboxes;
     private JColorLabel lblNome_Musica = new JColorLabel("", Color.YELLOW);
-    private ActionListener actionListener;
+
+    // The View talks to whoever controls it only through this semantic
+    // contract - never through Swing-specific types like ActionEvent or
+    // AbstractButton. This keeps the Controller free of any dependency on
+    // the concrete UI toolkit.
+    private BurussuViewListener viewListener;
 
     // configure the main window and its components.
     public BurussuView(String title) {
@@ -66,7 +70,7 @@ public class BurussuView extends JFrame {
         closeButton.setForeground(Color.WHITE);
         closeButton.setFont(new Font("Dialog", Font.BOLD, 16));
         closeButton.setPreferredSize(new Dimension(45, 40));
-        closeButton.addActionListener(e -> dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
+        closeButton.addActionListener(e -> requestClose());
         titleBar.add(closeButton, BorderLayout.EAST);
 
         final Point[] clickPoint = {null};
@@ -120,16 +124,19 @@ public class BurussuView extends JFrame {
         painelCentralplayer.setOpaque(false);
         painelControlesplayer.setOpaque(false);
 
-        playButton = createButton(PLAY_SOUND, true);
+        // PLAY_SOUND keeps the toggle-styled widget for visual consistency
+        // with the other buttons, but semantically it always just fires a
+        // "play" request - it does not represent an on/off domain state.
+        playButton = createToggleStyledActionButton(PLAY_SOUND, this::firePlayRequested);
         playButton.setEnabled(false);
 
         painelControlesplayer.setLayout(new FlowLayout(FlowLayout.LEFT));
-        painelControlesplayer.add(createButton(OPEN, false));
+        painelControlesplayer.add(createActionButton(OPEN, this::fireOpenRequested));
         painelControlesplayer.add(playButton);
-        painelControlesplayer.add(createButton(PAUSE, true));
-        painelControlesplayer.add(createButton(KARAOKE, true));
-        painelControlesplayer.add(createButton(ACAPELLA, true));
-        painelControlesplayer.add(createButton(EXIT, false));
+        painelControlesplayer.add(createToggleButton(PAUSE, this::firePauseToggled));
+        painelControlesplayer.add(createToggleButton(KARAOKE, this::fireKaraokeToggled));
+        painelControlesplayer.add(createToggleButton(ACAPELLA, this::fireAcapellaToggled));
+        painelControlesplayer.add(createActionButton(EXIT, this::fireExitRequested));
 
         getContentPane().add(titleBar, BorderLayout.NORTH);
         getContentPane().add(painelCentralJFrame, BorderLayout.CENTER);
@@ -142,20 +149,75 @@ public class BurussuView extends JFrame {
         setVisible(true);
     }
 
-    public void setActionListener(ActionListener actionListener) {
-        this.actionListener = actionListener;
+    /** Registers the Controller (or any object) that should be 
+     * notified of user intent. */
+    public void setViewListener(BurussuViewListener viewListener) {
+        this.viewListener = viewListener;
     }
 
-    // create UI buttons and associate the action listener to them.
-    public AbstractButton createButton(String name, boolean canToggle) {
-        AbstractButton button = canToggle ? new JToggleRoundedButton(name) : new JRoundedButton(name);
-        button.addActionListener(e -> {
-            if (actionListener != null) {
-                actionListener.actionPerformed(e);
-            }
-        });
+    /** Requests that the window be closed, the same path used by the title bar's close button. */
+    public void requestClose() {
+        dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+    }
+
+    // --- Internal Swing -> domain event translation -------------------
+    // The View owns all knowledge of Swing widgets; the Controller never
+    // sees an ActionEvent or an AbstractButton.
+    private AbstractButton createActionButton(String label, Runnable onAction) {
+        AbstractButton button = new JRoundedButton(label);
+        button.addActionListener(e -> onAction.run());
         return button;
     }
+
+    private AbstractButton createToggleButton(String label, Consumer<Boolean> onToggle) {
+        AbstractButton button = new JToggleRoundedButton(label);
+        button.addActionListener(e -> onToggle.accept(button.isSelected()));
+        return button;
+    }
+
+    private AbstractButton createToggleStyledActionButton(String label, Runnable onAction) {
+        AbstractButton button = new JToggleRoundedButton(label);
+        button.addActionListener(e -> onAction.run());
+        return button;
+    }
+
+    private void fireOpenRequested() {
+        if (viewListener != null) {
+            viewListener.onOpenRequested();
+        }
+    }
+
+    private void fireExitRequested() {
+        if (viewListener != null) {
+            viewListener.onExitRequested();
+        }
+    }
+
+    private void firePauseToggled(boolean paused) {
+        if (viewListener != null) {
+            viewListener.onPauseToggled(paused);
+        }
+    }
+
+    private void fireKaraokeToggled(boolean enabled) {
+        if (viewListener != null) {
+            viewListener.onKaraokeToggled(enabled);
+        }
+    }
+
+    private void fireAcapellaToggled(boolean enabled) {
+        if (viewListener != null) {
+            viewListener.onAcapellaToggled(enabled);
+        }
+    }
+
+    private void firePlayRequested() {
+        if (viewListener != null) {
+            viewListener.onPlayRequested();
+        }
+    }
+
+    // --------------------------------------------------------------------
 
     public File[] selectAudioFiles() {
         jFileChooserColorSetup();
@@ -191,14 +253,15 @@ public class BurussuView extends JFrame {
         painelCentralplayer.repaint();
     }
 
-    public void renderChannels(Sound[] canais, ActionListener channelSelectionListener) {
+    public void renderChannels(Sound[] canais) {
         clearPlayerPanel();
-        checkboxes = new JCheckBox[canais.length];
+        JCheckBox[] checkboxes = new JCheckBox[canais.length];
         for (int i = 0; i < canais.length; i++) {
-            PanelLevelMeter meter = new PanelLevelMeter(null);
+            final int channelIndex = i;
+
+            PanelLevelMeter meter = new PanelLevelMeter(canais[i]);
             meter.setLayout(new FlowLayout(FlowLayout.LEFT));
             meter.setPreferredSize(new Dimension(650, 20));
-            meter.setSound(canais[i]);
 
             if (i < 9) {
                 checkboxes[i] = new JCheckBox("Canal 0" + (i + 1), true);
@@ -207,7 +270,11 @@ public class BurussuView extends JFrame {
             }
             checkboxes[i].setForeground(Color.WHITE);
             checkboxes[i].setOpaque(false);
-            checkboxes[i].addActionListener(channelSelectionListener);
+            checkboxes[i].addActionListener(e -> {
+                if (viewListener != null) {
+                    viewListener.onChannelToggled(channelIndex, checkboxes[channelIndex].isSelected());
+                }
+            });
 
             painelCentralplayer.add(checkboxes[i]);
             painelCentralplayer.add(meter);
@@ -223,10 +290,6 @@ public class BurussuView extends JFrame {
 
     public void setMusicName(String nome) {
         lblNome_Musica.setText((nome == null ? "" : nome) + "  ");
-    }
-
-    public JCheckBox[] getCheckboxes() {
-        return checkboxes;
     }
 
     public String getParentFolder(File arquivo) {
@@ -262,5 +325,3 @@ public class BurussuView extends JFrame {
         SwingUtilities.updateComponentTreeUI(this);
     }
 }
-
-

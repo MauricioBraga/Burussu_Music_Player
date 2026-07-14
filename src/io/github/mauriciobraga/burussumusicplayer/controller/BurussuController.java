@@ -1,17 +1,19 @@
 package io.github.mauriciobraga.burussumusicplayer.controller;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.sound.sampled.AudioFormat;
-import javax.swing.AbstractButton;
 
 import io.github.mauriciobraga.burussumusicplayer.model.Sound;
 import io.github.mauriciobraga.burussumusicplayer.model.SoundManager;
 import io.github.mauriciobraga.burussumusicplayer.view.BurussuView;
+import io.github.mauriciobraga.burussumusicplayer.view.BurussuViewListener;
 
-public class BurussuController implements ActionListener {
+// The Controller depends only on the domain-level BurussuViewListener
+// contract and on model/view types of this application - no java.awt or
+// javax.swing imports remain here, so this class can be unit-tested with a
+// stub BurussuView/view listener and no AWT/Swing runtime involved.
+public class BurussuController implements BurussuViewListener {
 
     private static final AudioFormat PLAYBACK_FORMAT = new AudioFormat(44100, 16, 1, true, false);
 
@@ -22,8 +24,8 @@ public class BurussuController implements ActionListener {
 
     public BurussuController(BurussuView view) {
         this.view = view;
-        // add this controller as listener of the UI events.
-        this.view.setActionListener(this);
+        // register this controller to be notified of user intent.
+        this.view.setViewListener(this);
         initSoundManager();
     }
 
@@ -31,65 +33,69 @@ public class BurussuController implements ActionListener {
         soundManager = new SoundManager(PLAYBACK_FORMAT);
     }
 
-    // all button click events generated in the view are processed here.
     @Override
-    public void actionPerformed(ActionEvent e) {
-        String command = e.getActionCommand();
-        AbstractButton button = (AbstractButton) e.getSource();
+    public void onOpenRequested() {
+        soundManager.close();
+        soundManager = new SoundManager(PLAYBACK_FORMAT);
+        view.clearPlayerPanel();
+        openFiles();
+    }
 
-        if (BurussuView.OPEN.equals(command)) {
-            soundManager.close();
-            soundManager = new SoundManager(PLAYBACK_FORMAT);
-            view.clearPlayerPanel();
-            openFiles();
-        } else if (BurussuView.EXIT.equals(command)) {
-            soundManager.close();
-            view.dispatchEvent(new java.awt.event.WindowEvent(view, java.awt.event.WindowEvent.WINDOW_CLOSING));
-        } else if (BurussuView.PAUSE.equals(command)) {
-            soundManager.setPaused(button.isSelected());
-        } else if (BurussuView.KARAOKE.equals(command)) {
-            if (canais != null && canais.length > 0) {
-                int lastIndex = canais.length - 1;
-                boolean enabled = button.isSelected();
-                canais[lastIndex].setPlay(!enabled);
-                canais[lastIndex].setLevel(enabled ? 0f : 0.8f);
-            }
-        } else if (BurussuView.ACAPELLA.equals(command)) {
-            if (canais != null && canais.length > 1) {
-                boolean enabled = button.isSelected();
-                for (int i = 0; i < canais.length - 1; i++) {
-                    canais[i].setPlay(!enabled);
-                    canais[i].setLevel(enabled ? 0f : 0.8f);
-                }
-            }
-        } else if (BurussuView.PLAY_SOUND.equals(command)) {
-            if (alreadyPlaying || canais == null || canais.length == 0) {
-                return;
-            }
+    @Override
+    public void onExitRequested() {
+        soundManager.close();
+        view.requestClose();
+    }
 
-            view.renderChannels(canais, this::onChannelSelection);
-            for (Sound canal : canais) {
-                soundManager.play(canal);
-            }
-            alreadyPlaying = true;
+    @Override
+    public void onPauseToggled(boolean paused) {
+        soundManager.setPaused(paused);
+    }
+
+    @Override
+    public void onKaraokeToggled(boolean enabled) {
+        if (canais == null || canais.length == 0) {
+            return;
+        }
+        int lastIndex = canais.length - 1;
+        canais[lastIndex].setPlay(!enabled);
+        canais[lastIndex].setLevel(enabled ? 0f : 0.8f);
+    }
+
+    @Override
+    public void onAcapellaToggled(boolean enabled) {
+        if (canais == null || canais.length < 2) {
+            return;
+        }
+        for (int i = 0; i < canais.length - 1; i++) {
+            canais[i].setPlay(!enabled);
+            canais[i].setLevel(enabled ? 0f : 0.8f);
         }
     }
 
-    private void onChannelSelection(ActionEvent event) {
-        if (canais == null) {
+    @Override
+    public void onPlayRequested() {
+        if (alreadyPlaying || canais == null || canais.length == 0) {
             return;
         }
 
-        for (int i = 0; i < view.getCheckboxes().length; i++) {
-            if (view.getCheckboxes()[i] == event.getSource()) {
-                canais[i].setPlay(view.getCheckboxes()[i].isSelected());
-                canais[i].setLevel(0f);
-                break;
-            }
+        view.renderChannels(canais);
+        for (Sound canal : canais) {
+            soundManager.play(canal);
         }
+        alreadyPlaying = true;
     }
 
-    // load audio files selected by the user and 
+    @Override
+    public void onChannelToggled(int channelIndex, boolean enabled) {
+        if (canais == null || channelIndex < 0 || channelIndex >= canais.length) {
+            return;
+        }
+        canais[channelIndex].setPlay(enabled);
+        canais[channelIndex].setLevel(0f);
+    }
+
+    // load audio files selected by the user and
     // create Sound objects for each file.
     private void openFiles() {
         File[] files = view.selectAudioFiles();
