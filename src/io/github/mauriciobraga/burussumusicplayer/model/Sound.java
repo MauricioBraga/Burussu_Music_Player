@@ -19,7 +19,13 @@ public class Sound {
 
     private byte[] samples;
     private int id = -1;
-    private boolean play = true;
+
+    // Written by the EDT (Controller reacting to a checkbox/Karaoke/Acapella
+    // toggle) and read by the audio playback thread (SoundManager). volatile
+    // guarantees the mute/unmute takes effect promptly and visibly across
+    // threads, the same reasoning as for `level` above.
+    private volatile boolean play = true;
+
 
     // Written by the audio playback thread (see SoundManager.calculateLevel)
     // and read by the Swing EDT (see PanelLevelMeter). volatile guarantees
@@ -51,9 +57,17 @@ public class Sound {
     public void setLevel(float f) {
         float old = level;
         level = f;
-        if (Math.abs(f - old) >= LEVEL_CHANGE_THRESHOLD) {
+        boolean changedEnough = Math.abs(f - old) >= LEVEL_CHANGE_THRESHOLD;
+        // A transition down to exact silence (e.g. a channel being muted by
+        // Karaoke/Acapella) always matters to the View, even if `old` was
+        // already a very small value below the throttling threshold -
+        // otherwise the meter could be left showing a small stale residual
+        // bar that never gets cleared.
+        boolean becameSilent = f == 0f && old != 0f;
+        if (changedEnough || becameSilent) {
             changeSupport.firePropertyChange(LEVEL_PROPERTY, old, f);
         }
+
     }
 
     /** Registers a listener to be notified whenever the level changes. */

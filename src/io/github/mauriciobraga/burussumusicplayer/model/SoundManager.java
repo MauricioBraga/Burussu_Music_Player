@@ -366,6 +366,19 @@ public class SoundManager extends ThreadPool {
 
                                 line.write(buffer, 0, numBytesRead);
                             } else {
+
+                                // Keep pushing the level to zero every
+                                // iteration while muted. This makes the
+                                // zeroing self-correcting: even if a
+                                // calculateLevel() call for a buffer read
+                                // just before the mute took effect races
+                                // past the Controller's one-shot
+                                // setLevel(0f) and overwrites it with a
+                                // non-zero value, the very next buffer here
+                                // brings it back to zero - so the meter
+                                // cannot get stuck showing a stale level.
+                                x.setLevel(0f);
+
                                 byte[] buffervazio = new byte[numBytesRead];
                                 line.write(buffervazio, 0, numBytesRead);
                             }
