@@ -8,12 +8,11 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
+// import java.util.Random;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-// import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
@@ -24,8 +23,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class SoundManager extends ThreadPool {
 
     private AudioFormat playbackFormat;
-    private ThreadLocal localLine;
-    private ThreadLocal localBuffer;
+    private ThreadLocal<SourceDataLine> localLine;
+    private ThreadLocal<byte[]> localBuffer;
+    
     private Object pausedLock;
     private boolean paused;
 
@@ -41,7 +41,7 @@ public class SoundManager extends ThreadPool {
     public SoundManager(AudioFormat playbackFormat) {
 
         this(playbackFormat, getMaxSimultaneousSounds(playbackFormat));
-        int maxsimultaneoussounds2 = getMaxSimultaneousSounds(playbackFormat);
+        // int maxsimultaneoussounds2 = getMaxSimultaneousSounds(playbackFormat);
     }
 
     /**
@@ -53,8 +53,8 @@ public class SoundManager extends ThreadPool {
         super(Math.min(maxSimultaneousSounds,
                 getMaxSimultaneousSounds(playbackFormat)));
         this.playbackFormat = playbackFormat;
-        localLine = new ThreadLocal();
-        localBuffer = new ThreadLocal();
+        localLine = new ThreadLocal<SourceDataLine>();
+        localBuffer = new ThreadLocal<byte[]>();
         pausedLock = new Object();
         // notify threads in pool it's ok to start
         synchronized (this) {
@@ -303,7 +303,7 @@ public class SoundManager extends ThreadPool {
      * closes the Thread's Line.
      */
     protected void threadStopped() {
-        SourceDataLine line = (SourceDataLine) localLine.get();
+        SourceDataLine line = localLine.get();
         if (line != null) {
             line.drain();
             line.close();
@@ -321,8 +321,8 @@ public class SoundManager extends ThreadPool {
     protected class SoundPlayer implements Runnable {
 
         private InputStream source;
-        private int id = -1;
-        private boolean play = true;
+        // private int id = -1;
+        // private boolean play = true;
         SourceDataLine line;
 
         public SoundPlayer(InputStream source) {
@@ -331,8 +331,8 @@ public class SoundManager extends ThreadPool {
 
         public void run() {
             // get line and buffer from ThreadLocals
-            line = (SourceDataLine) localLine.get();
-            byte[] buffer = (byte[]) localBuffer.get();
+            line = localLine.get();
+            byte[] buffer = localBuffer.get();
             if (line == null || buffer == null) {
                 // the line is unavailable
                 return;
@@ -360,7 +360,7 @@ public class SoundManager extends ThreadPool {
                             boolean play = x.isPlay();
                             if (play) {
                                 // calcula o nível do som e seta o valor para gerar o gráfico na tela
-                                float temp = (float) new Random().nextFloat();
+                                // float temp = (float) new Random().nextFloat();
                                 // x.setLevel( temp);
                                 calculateLevel(buffer, 0, 0, x);
 

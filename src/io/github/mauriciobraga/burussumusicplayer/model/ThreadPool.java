@@ -11,7 +11,8 @@ import java.util.LinkedList;
 class ThreadPool extends ThreadGroup {
 
     private boolean isAlive;
-    private LinkedList taskQueue;
+    private LinkedList<Runnable> taskQueue;
+
     private int threadID;
     private static int threadPoolID;
 
@@ -28,7 +29,8 @@ class ThreadPool extends ThreadGroup {
 
         isAlive = true;
 
-        taskQueue = new LinkedList();
+        taskQueue = new LinkedList<Runnable>();
+
         for (int i = 0; i < numThreads; i++) {
             new PooledThread().start();
         }
@@ -64,7 +66,7 @@ class ThreadPool extends ThreadGroup {
             }
             wait();
         }
-        return (Runnable) taskQueue.removeFirst();
+        return taskQueue.removeFirst();
     }
 
     /**
